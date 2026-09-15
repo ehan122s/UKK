@@ -1,0 +1,159 @@
+:root{
+  --ink:#222;
+  --muted:#666;
+  --line:#bbb;
+  --line-light:#ddd;
+  --band:#c3cc9a;
+  --band-light:#d8e0b8;
+  --blue:#3f6fb3;
+  --blue-dark:#33588f;
+  --gray-btn:#e2e2e2;
+  --gray-btn-ink:#333;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:#fff;
+  color:var(--ink);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:14px;
+}
+h1,h2{margin:0 0 4px; font-weight:bold;}
+a{color:var(--blue-dark);}
+
+/* ---------- simple top nav (replaces sidebar) ---------- */
+.topnav{
+  border-bottom:2px solid var(--ink);
+  padding:12px 24px;
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+}
+.topnav .brand{font-weight:bold; font-size:15px; margin-right:auto;}
+.topnav a{
+  color:var(--ink); text-decoration:none; font-size:13px; padding:4px 2px;
+  border-bottom:2px solid transparent;
+}
+.topnav a.active{border-bottom-color:var(--blue);}
+.topnav .topbar-user{font-size:13px; color:var(--muted);}
+.topnav .link{font-size:13px;}
+
+.app-content{padding:24px; max-width:760px; margin:0 auto;}
+.page-intro{color:var(--muted); font-size:13px; margin:0 0 16px;}
+.page-header-row{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px;}
+
+/* ---------- guest / login ---------- */
+.guest-body{margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 16px;}
+.guest-wrap{width:100%; max-width:340px;}
+.login-card{border:1px solid var(--line); padding:26px;}
+.login-brand{font-weight:bold; font-size:15px; margin-bottom:18px; text-align:center;}
+.login-card h2{font-size:14px; text-transform:uppercase; letter-spacing:.03em; text-align:center; margin-bottom:2px;}
+.login-card .sub{font-size:12px; color:var(--muted); text-align:center; margin:0 0 20px;}
+.hint{font-size:12px; color:var(--muted); margin-top:14px; text-align:center;}
+
+/* ---------- generic card / box ---------- */
+.card{border:1px solid var(--line); padding:22px;}
+
+/* ---------- forms: boxed inputs (login, captcha) ---------- */
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:4px;}
+.field input{
+  width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:0;
+  font-size:13px; font-family:inherit; background:#fff;
+}
+.field input:focus{outline:1px solid var(--blue); outline-offset:0;}
+
+/* ---------- form inputs: underline style (gaji input form, matches reference) ---------- */
+.field-underline{margin-bottom:16px;}
+.field-underline label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin-bottom:4px;}
+.field-underline input{
+  width:100%; border:none; border-bottom:1px solid var(--line); border-radius:0;
+  padding:5px 2px; font-size:13px; font-family:inherit; background:transparent;
+}
+.field-underline input:focus{outline:none; border-bottom:1px solid var(--blue);}
+.form-note{font-size:11px; color:var(--muted); margin:4px 0 18px;}
+
+/* ---------- buttons ---------- */
+.btn{
+  padding:9px 18px; background:var(--gray-btn); color:var(--gray-btn-ink); border:1px solid var(--line);
+  border-radius:0; font-size:13px; font-weight:bold; cursor:pointer; font-family:inherit;
+  text-decoration:none; display:inline-block;
+}
+.btn:hover{background:#d5d5d5;}
+.btn.small{padding:7px 14px; font-size:12px;}
+.btn-primary{background:var(--blue); color:#fff; border-color:var(--blue-dark);}
+.btn-primary:hover{background:var(--blue-dark);}
+.btn-outline{background:#fff;}
+.link{background:none; border:none; color:var(--blue-dark); font-size:12px; cursor:pointer; padding:0; text-decoration:underline;}
+.link-danger{color:#a33;}
+.actions{text-align:right;}
+
+/* login button + slip submit button are the "primary" full-width action */
+.login-card .btn, .slip-submit .btn{width:100%;}
+
+/* ---------- alerts ---------- */
+.alert{padding:8px 12px; border:1px solid var(--line); font-size:12px; margin-bottom:14px;}
+.alert-error{border-color:#c66; color:#a33; background:#fbeeee;}
+.alert-success{border-color:#7a7; color:#2a7a2a; background:#eef7ee;}
+
+/* ---------- info list ---------- */
+.info-list{list-style:none; margin:0 0 16px; padding:0; font-size:13px;}
+.info-list li{display:flex; padding:3px 0;}
+.info-list li span:first-child{width:100px; color:var(--muted);}
+
+/* ---------- ledger tables (Penghasilan / Potongan bands) ---------- */
+.ledger-block{margin-bottom:2px;}
+.band-header{
+  background:var(--band); padding:6px 12px; font-size:12px; font-weight:bold;
+  text-transform:uppercase; letter-spacing:.02em; display:flex; justify-content:space-between;
+}
+table.ledger{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px;}
+table.ledger td{padding:6px 12px; border-bottom:1px solid var(--line-light);}
+table.ledger td:last-child{text-align:right;}
+table.ledger tr:last-child td{border-bottom:none;}
+
+.net-row{
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--band-light); padding:9px 12px; margin-bottom:20px; font-weight:bold;
+}
+
+/* ---------- data table (Data Gaji list) ---------- */
+table.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+table.data-table th{
+  text-align:left; font-size:11px; text-transform:uppercase; color:var(--muted);
+  padding:6px 8px; border-bottom:1px solid var(--ink);
+}
+table.data-table td{padding:8px; border-bottom:1px solid var(--line-light);}
+.table-actions{display:flex; gap:10px; align-items:center;}
+.table-actions form{display:inline;}
+
+.badge{display:inline-block; font-size:10px; padding:2px 7px; border:1px solid var(--line); color:var(--muted); margin-right:4px;}
+.badge-ok{border-color:#7a7; color:#2a7a2a;}
+
+/* ---------- captcha ---------- */
+.captcha-row{display:flex; gap:10px; align-items:flex-end; margin-bottom:18px; flex-wrap:wrap;}
+.captcha-code{
+  font-family:monospace; font-size:15px; letter-spacing:2px; background:#f2f2f2;
+  border:1px solid var(--line); padding:7px 14px;
+}
+.captcha-refresh{
+  width:30px; height:30px; border:1px solid var(--line); background:#fff;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted);
+}
+.captcha-row .field{flex:1; min-width:150px; margin-bottom:0;}
+
+.slip-actions-row{display:flex; gap:8px; flex-wrap:wrap; padding-top:6px;}
+.slip-actions-row form{display:inline;}
+
+/* ---------- dashboard: simple, no card-grid dazzle ---------- */
+.dash-summary{list-style:none; margin:0 0 20px; padding:0; font-size:13px;}
+.dash-summary li{
+  display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line-light);
+}
+.dash-summary li span:first-child{color:var(--muted);}
+.dash-summary li span:last-child{font-weight:bold;}
+.quick-actions{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+
+@media (max-width:600px){
+  .topnav{padding:10px 14px; gap:12px;}
+  .app-content{padding:16px;}
+  .card{padding:16px;}
+}
