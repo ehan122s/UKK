@@ -26,6 +26,9 @@ class Gaji extends Model
         'periode_akhir'    => 'date',
         'email_sent_at'    => 'datetime',
         'whatsapp_sent_at' => 'datetime',
+        'gaji_pokok'        => 'integer',
+        'lembur'            => 'integer',
+        'pinjaman_karyawan' => 'integer',
     ];
 
     public function karyawan(): BelongsTo
@@ -33,16 +36,16 @@ class Gaji extends Model
         return $this->belongsTo(Karyawan::class);
     }
 
-    // Total Penghasilan = Gaji Pokok + Lembur
+    // Total Penghasilan = Gaji Pokok + Lembur (Aman dari null)
     public function getTotalPenghasilanAttribute(): int
     {
-        return $this->gaji_pokok + $this->lembur;
+        return ($this->gaji_pokok ?? 0) + ($this->lembur ?? 0);
     }
 
-    // Total Potongan = Pinjaman Karyawan
+    // Total Potongan = Pinjaman Karyawan (Aman dari null)
     public function getTotalPotonganAttribute(): int
     {
-        return $this->pinjaman_karyawan;
+        return $this->pinjaman_karyawan ?? 0;
     }
 
     // Gaji Bersih = Total Penghasilan - Total Potongan

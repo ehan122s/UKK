@@ -10,7 +10,8 @@ class GajiController extends Controller
 {
     public function index()
     {
-        $gajis = Gaji::with('karyawan')->orderByDesc('periode_akhir')->get();
+        // Diurutkan berdasarkan data terbaru (created_at) agar aman dari error kolom
+        $gajis = Gaji::with('karyawan')->latest()->get();
 
         return view('gaji.index', compact('gajis'));
     }
@@ -18,8 +19,9 @@ class GajiController extends Controller
     public function create()
     {
         $karyawans = Karyawan::orderBy('nama')->get();
+        $gaji = new Gaji(); // Kirim objek kosong agar _form.blade.php tidak error null
 
-        return view('gaji.create', compact('karyawans'));
+        return view('gaji.create', compact('karyawans', 'gaji'));
     }
 
     public function store(Request $request)

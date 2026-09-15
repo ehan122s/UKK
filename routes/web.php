@@ -52,13 +52,17 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/gaji/{gaji}/slip/verifikasi', [SlipGajiController::class, 'verifyCaptcha'])->name('gaji.slip.verify');
     Route::get('/gaji/{gaji}/slip/captcha-baru', [SlipGajiController::class, 'refreshCaptcha'])->name('gaji.slip.refresh-captcha');
 
-    // Route Aksi (Didaftarkan nama alternatif agar kompatibel dengan Blade)
+    // Route Download PDF
     Route::get('/gaji/{gaji}/slip/pdf', [SlipGajiController::class, 'downloadPdf'])->name('gaji.slip.pdf');
     Route::get('/gaji/{gaji}/pdf', [SlipGajiController::class, 'downloadPdf'])->name('gaji.pdf');
 
+    // Route Kirim Email (Resend API)
     Route::post('/gaji/{gaji}/slip/email', [SlipGajiController::class, 'sendEmail'])->name('gaji.slip.email');
     Route::post('/gaji/{gaji}/email', [SlipGajiController::class, 'sendEmail'])->name('gaji.email');
+    Route::post('/gaji/{gaji}/send-email', [SlipGajiController::class, 'sendEmail'])->name('gaji.send-email');
 
+    // Route Kirim WhatsApp (Fonnte API)
     Route::post('/gaji/{gaji}/slip/whatsapp', [SlipGajiController::class, 'sendWhatsapp'])->name('gaji.slip.whatsapp');
     Route::post('/gaji/{gaji}/whatsapp', [SlipGajiController::class, 'sendWhatsapp'])->name('gaji.whatsapp');
+    Route::post('/gaji/{gaji}/send-wa', [SlipGajiController::class, 'sendWhatsapp'])->name('gaji.send-wa');
 });

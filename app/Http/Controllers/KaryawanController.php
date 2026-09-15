@@ -9,7 +9,6 @@ class KaryawanController extends Controller
 {
     public function index(Request $request)
     {
-        // Load relasi gajis dan tambah fitur pencarian
         $query = Karyawan::with('gajis');
 
         if ($request->filled('search')) {
@@ -21,31 +20,70 @@ class KaryawanController extends Controller
         }
 
         $karyawans = $query->orderBy('nama')->get();
+        $today = now()->toDateString();
+
+        if ($request->filled('status_periode')) {
+            $status = $request->status_periode;
+            $karyawans = $karyawans->filter(function ($karyawan) use ($status, $today) {
+                $gaji = $karyawan->gajis->last();
+                if (! $gaji) {
+                    return $status === 'tidak_aktif';
+                }
+
+                $isAktif = ($gaji->periode_awal <= $today && $gaji->periode_akhir >= $today);
+
+                return $status === 'aktif' ? $isAktif : ! $isAktif;
+            });
+        }
 
         return view('karyawan.index', compact('karyawans'));
     }
 
     public function create()
     {
-        return view('karyawan.create');
+        return view('karyawan.create', ['karyawan' => new Karyawan()]);
     }
 
-   public function store(Request $request)
-{
-    $data = $this->validated($request);
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nik'           => ['required', 'string', 'max:50', 'unique:karyawans,nik'],
+            'nama'          => ['required', 'string', 'max:255'],
+            'jabatan'       => ['required', 'string', 'max:255'],
+            'gaji_pokok'    => ['required', 'numeric', 'min:0'],
+            'lembur'        => ['required', 'numeric', 'min:0'],
+            'pinjaman'      => ['nullable', 'numeric', 'min:0'],
+            'periode_awal'  => ['nullable', 'date'],
+            'periode_akhir' => ['nullable', 'date'],
+        ]);
 
-    $karyawan = Karyawan::create($data);
+        $pinjamanVal  = $request->input('pinjaman', 0);
+        $periodeAwal  = $request->input('periode_awal') ?: now()->startOfMonth()->toDateString();
+        $periodeAkhir = $request->input('periode_akhir') ?: now()->endOfMonth()->toDateString();
 
-    $karyawan->gajis()->create([
-        'gaji_pokok'        => $request->input('gaji_pokok', 0),
-        'lembur'            => $request->input('lembur', 0),
-        'pinjaman_karyawan' => $request->input('pinjaman', 0), // Disesuaikan
-        'periode_awal'      => now()->startOfMonth()->toDateString(),
-        'periode_akhir'     => now()->endOfMonth()->toDateString(),
-    ]);
+        $karyawan = Karyawan::create([
+            'nik'               => $validated['nik'],
+            'nama'              => $validated['nama'],
+            'jabatan'           => $validated['jabatan'],
+            'gaji_pokok'        => $validated['gaji_pokok'],
+            'lembur'            => $validated['lembur'],
+            'pinjaman'          => $pinjamanVal,
+            'pinjaman_karyawan' => $pinjamanVal,
+        ]);
 
-    return redirect()->route('karyawan.index')->with('status', 'Data karyawan dan gaji berhasil ditambahkan.');
-}
+        $gajiBersih = $validated['gaji_pokok'] + $validated['lembur'] - $pinjamanVal;
+        
+        $karyawan->gajis()->create([
+            'gaji_pokok'        => $validated['gaji_pokok'],
+            'lembur'            => $validated['lembur'],
+            'pinjaman_karyawan' => $pinjamanVal,
+            'gaji_bersih'       => $gajiBersih,
+            'periode_awal'      => $periodeAwal,
+            'periode_akhir'     => $periodeAkhir,
+        ]);
+
+        return redirect()->route('karyawan.index')->with('status', 'Data karyawan dan rincian gaji berhasil ditambahkan.');
+    }
 
     public function edit(Karyawan $karyawan)
     {
@@ -54,46 +92,62 @@ class KaryawanController extends Controller
     }
 
     public function update(Request $request, Karyawan $karyawan)
-{
-    $data = $this->validated($request, $karyawan->id);
+    {
+        $validated = $request->validate([
+            'nik'           => ['required', 'string', 'max:50', 'unique:karyawans,nik,' . $karyawan->id],
+            'nama'          => ['required', 'string', 'max:255'],
+            'jabatan'       => ['required', 'string', 'max:255'],
+            'gaji_pokok'    => ['required', 'numeric', 'min:0'],
+            'lembur'        => ['required', 'numeric', 'min:0'],
+            'pinjaman'      => ['nullable', 'numeric', 'min:0'],
+            'periode_awal'  => ['nullable', 'date'],
+            'periode_akhir' => ['nullable', 'date'],
+        ]);
 
-    $karyawan->update($data);
+        $pinjamanVal  = $request->input('pinjaman', 0);
+        $periodeAwal  = $request->input('periode_awal') ?: now()->startOfMonth()->toDateString();
+        $periodeAkhir = $request->input('periode_akhir') ?: now()->endOfMonth()->toDateString();
 
-    $gajiData = [
-        'gaji_pokok'        => $request->input('gaji_pokok', 0),
-        'lembur'            => $request->input('lembur', 0),
-        'pinjaman_karyawan' => $request->input('pinjaman', 0), // Disesuaikan
-        'periode_awal'      => now()->startOfMonth()->toDateString(),
-        'periode_akhir'     => now()->endOfMonth()->toDateString(),
-    ];
+        $karyawan->update([
+            'nik'               => $validated['nik'],
+            'nama'              => $validated['nama'],
+            'jabatan'           => $validated['jabatan'],
+            'gaji_pokok'        => $validated['gaji_pokok'],
+            'lembur'            => $validated['lembur'],
+            'pinjaman'          => $pinjamanVal,
+            'pinjaman_karyawan' => $pinjamanVal,
+        ]);
 
-    if ($karyawan->gajis()->exists()) {
-        $karyawan->gajis()->update($gajiData);
-    } else {
-        $karyawan->gajis()->create($gajiData);
+        $gajiBersih = $validated['gaji_pokok'] + $validated['lembur'] - $pinjamanVal;
+
+        if ($karyawan->gajis()->exists()) {
+            $gajiTerbaru = $karyawan->gajis->last();
+            $gajiTerbaru->update([
+                'gaji_pokok'        => $validated['gaji_pokok'],
+                'lembur'            => $validated['lembur'],
+                'pinjaman_karyawan' => $pinjamanVal,
+                'gaji_bersih'       => $gajiBersih,
+                'periode_awal'      => $periodeAwal,
+                'periode_akhir'     => $periodeAkhir,
+            ]);
+        } else {
+            $karyawan->gajis()->create([
+                'gaji_pokok'        => $validated['gaji_pokok'],
+                'lembur'            => $validated['lembur'],
+                'pinjaman_karyawan' => $pinjamanVal,
+                'gaji_bersih'       => $gajiBersih,
+                'periode_awal'      => $periodeAwal,
+                'periode_akhir'     => $periodeAkhir,
+            ]);
+        }
+
+        return redirect()->route('karyawan.index')->with('status', 'Data karyawan dan periode gaji berhasil diperbarui.');
     }
-
-    return redirect()->route('karyawan.index')->with('status', 'Data karyawan dan gaji berhasil diperbarui.');
-}
 
     public function destroy(Karyawan $karyawan)
     {
-        $karyawan->delete(); // otomatis menghapus data gaji terkait (cascade)
+        $karyawan->delete();
 
         return redirect()->route('karyawan.index')->with('status', 'Data karyawan berhasil dihapus.');
-    }
-
-    private function validated(Request $request, ?int $ignoreId = null): array
-    {
-        return $request->validate([
-            'nama'       => ['required', 'string', 'max:255'],
-            'nik'        => ['required', 'string', 'max:50', 'unique:karyawans,nik' . ($ignoreId ? ",{$ignoreId}" : '')],
-            'jabatan'    => ['required', 'string', 'max:255'],
-            'email'      => ['nullable', 'email'],
-            'no_hp'      => ['nullable', 'string', 'max:20'],
-            'gaji_pokok' => ['nullable', 'numeric'],
-            'lembur'     => ['nullable', 'numeric'],
-            'pinjaman'   => ['nullable', 'numeric'],
-        ]);
     }
 }
