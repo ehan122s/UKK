@@ -69,7 +69,6 @@ class SlipGajiController extends Controller
         return $pdf->download('slip-gaji-' . optional($karyawan)->nik . '-' . $periodeAkhir . '.pdf');
     }
 
-    // Mengirim Email via Resend API dari Input Modal
     public function sendEmail(Request $request, Gaji $gaji)
     {
         $request->validate([
@@ -115,7 +114,6 @@ class SlipGajiController extends Controller
         }
     }
 
-    // Mengirim WA via Fonnte API dari Input Modal
     public function sendWhatsapp(Request $request, Gaji $gaji)
     {
         $request->validate([
