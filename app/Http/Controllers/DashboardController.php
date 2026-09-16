@@ -11,16 +11,15 @@ class DashboardController extends Controller
     {
         $jumlahKaryawan = Karyawan::count();
         $jumlahSlip     = Gaji::count();
-        
-        // Menggunakan latest() tanpa argumen (otomatis mengurutkan berdasarkan created_at desc)
-        $terbaru        = Gaji::with('karyawan')->latest()->first();
-        
         $totalDikirim   = Gaji::whereNotNull('email_sent_at')
                               ->orWhereNotNull('whatsapp_sent_at')
                               ->count();
+        
+        $terbaru = Gaji::with('karyawan')->latest()->first();
 
-        return view('dashboard.index', compact(
-            'jumlahKaryawan', 'jumlahSlip', 'terbaru', 'totalDikirim'
-        ));
+        // Objek karyawan baru untuk form input di dashboard
+        $karyawan = new Karyawan();
+
+        return view('dashboard.index', compact('jumlahKaryawan', 'jumlahSlip', 'totalDikirim', 'terbaru', 'karyawan'));
     }
 }

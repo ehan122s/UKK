@@ -3,12 +3,10 @@
 @section('title', 'Tambah Karyawan')
 
 @section('content')
-    <div class="card" style="max-width:480px;">
-        <form method="POST" action="{{ route('karyawan.store') }}">
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 75vh; padding: 20px 0;">
+        <form action="{{ route('karyawan.store') }}" method="POST" style="width: 100%; display: flex; justify-content: center;">
             @csrf
-            @php($karyawan = null)
             @include('karyawan._form')
-            <button type="submit" class="btn btn-primary">Simpan</button>
         </form>
     </div>
 @endsection

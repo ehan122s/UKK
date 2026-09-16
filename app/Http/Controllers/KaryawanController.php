@@ -20,21 +20,6 @@ class KaryawanController extends Controller
         }
 
         $karyawans = $query->orderBy('nama')->get();
-        $today = now()->toDateString();
-
-        if ($request->filled('status_periode')) {
-            $status = $request->status_periode;
-            $karyawans = $karyawans->filter(function ($karyawan) use ($status, $today) {
-                $gaji = $karyawan->gajis->last();
-                if (! $gaji) {
-                    return $status === 'tidak_aktif';
-                }
-
-                $isAktif = ($gaji->periode_awal <= $today && $gaji->periode_akhir >= $today);
-
-                return $status === 'aktif' ? $isAktif : ! $isAktif;
-            });
-        }
 
         return view('karyawan.index', compact('karyawans'));
     }
@@ -46,18 +31,22 @@ class KaryawanController extends Controller
 
     public function store(Request $request)
     {
+        if ((int) $request->input('captcha') !== (int) $request->input('captcha_expected')) {
+            return back()->withInput()->withErrors(['captcha' => 'Jawaban Captcha salah! Silakan coba lagi.']);
+        }
+
         $validated = $request->validate([
-            'nik'           => ['required', 'string', 'max:50', 'unique:karyawans,nik'],
-            'nama'          => ['required', 'string', 'max:255'],
-            'jabatan'       => ['required', 'string', 'max:255'],
-            'gaji_pokok'    => ['required', 'numeric', 'min:0'],
-            'lembur'        => ['required', 'numeric', 'min:0'],
-            'pinjaman'      => ['nullable', 'numeric', 'min:0'],
-            'periode_awal'  => ['nullable', 'date'],
-            'periode_akhir' => ['nullable', 'date'],
+            'nik'               => ['required', 'string', 'max:50', 'unique:karyawans,nik'],
+            'nama'              => ['required', 'string', 'max:255'],
+            'jabatan'           => ['required', 'string', 'max:255'],
+            'gaji_pokok'        => ['required', 'numeric', 'min:0'],
+            'lembur'            => ['required', 'numeric', 'min:0'],
+            'pinjaman_karyawan' => ['nullable', 'numeric', 'min:0'],
+            'periode_awal'      => ['nullable', 'date'],
+            'periode_akhir'     => ['nullable', 'date'],
         ]);
 
-        $pinjamanVal  = $request->input('pinjaman', 0);
+        $pinjamanVal  = $request->input('pinjaman_karyawan', 0);
         $periodeAwal  = $request->input('periode_awal') ?: now()->startOfMonth()->toDateString();
         $periodeAkhir = $request->input('periode_akhir') ?: now()->endOfMonth()->toDateString();
 
@@ -93,18 +82,22 @@ class KaryawanController extends Controller
 
     public function update(Request $request, Karyawan $karyawan)
     {
+        if ((int) $request->input('captcha') !== (int) $request->input('captcha_expected')) {
+            return back()->withInput()->withErrors(['captcha' => 'Jawaban Captcha salah! Silakan coba lagi.']);
+        }
+
         $validated = $request->validate([
-            'nik'           => ['required', 'string', 'max:50', 'unique:karyawans,nik,' . $karyawan->id],
-            'nama'          => ['required', 'string', 'max:255'],
-            'jabatan'       => ['required', 'string', 'max:255'],
-            'gaji_pokok'    => ['required', 'numeric', 'min:0'],
-            'lembur'        => ['required', 'numeric', 'min:0'],
-            'pinjaman'      => ['nullable', 'numeric', 'min:0'],
-            'periode_awal'  => ['nullable', 'date'],
-            'periode_akhir' => ['nullable', 'date'],
+            'nik'               => ['required', 'string', 'max:50', 'unique:karyawans,nik,' . $karyawan->id],
+            'nama'              => ['required', 'string', 'max:255'],
+            'jabatan'           => ['required', 'string', 'max:255'],
+            'gaji_pokok'        => ['required', 'numeric', 'min:0'],
+            'lembur'            => ['required', 'numeric', 'min:0'],
+            'pinjaman_karyawan' => ['nullable', 'numeric', 'min:0'],
+            'periode_awal'      => ['nullable', 'date'],
+            'periode_akhir'     => ['nullable', 'date'],
         ]);
 
-        $pinjamanVal  = $request->input('pinjaman', 0);
+        $pinjamanVal  = $request->input('pinjaman_karyawan', 0);
         $periodeAwal  = $request->input('periode_awal') ?: now()->startOfMonth()->toDateString();
         $periodeAkhir = $request->input('periode_akhir') ?: now()->endOfMonth()->toDateString();
 
